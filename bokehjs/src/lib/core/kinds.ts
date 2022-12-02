@@ -528,3 +528,4 @@ export const CSSLength = new Kinds.CSSLength()
 export const FontSize = String
 export const Font = String
 export const Angle = Number
+export const Float = Number
