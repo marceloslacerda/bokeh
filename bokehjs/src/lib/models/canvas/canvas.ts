@@ -11,6 +11,7 @@ import {type PlotView} from "../plots/plot"
 import type {ReglWrapper} from "../glyphs/webgl/regl_wrap"
 import {InlineStyleSheet, StyleSheetLike} from "core/dom"
 import canvas_css from "styles/canvas.css"
+import icons_css from "styles/icons.css"
 
 export type FrameBox = [number, number, number, number]
 
@@ -120,7 +121,7 @@ export class CanvasView extends UIElementView {
   }
 
   override stylesheets(): StyleSheetLike[] {
-    return [...super.stylesheets(), canvas_css, this._size]
+    return [...super.stylesheets(), canvas_css, icons_css, this._size]
   }
 
   override render(): void {
