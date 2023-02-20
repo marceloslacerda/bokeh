@@ -340,11 +340,13 @@ def test_Label() -> None:
         "angle_units",
         "direction",
         "padding",
+        "border_radius",
         "editable",
     ],
         TEXT,
         prefix('border_', LINE),
         prefix('background_', FILL),
+        prefix('background_', HATCH),
     )
 
 def test_Label_accepts_datetime_xy() -> None:
@@ -493,6 +495,7 @@ def test_Title() -> None:
         TEXT,
         prefix("border_", LINE),
         prefix("background_", FILL),
+        prefix('background_', HATCH),
     )
 
 
