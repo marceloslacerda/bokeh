@@ -113,7 +113,13 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
     return lrtb
   }
 
-  protected _render(): void {
+  get border_radius(): Corners<number> {
+    return resolve.border_radius(this.model.border_radius)
+  }
+
+  override compute_geometry(): void {
+    super.compute_geometry()
+
     function compute(value: number | null, mapper: CoordinateMapper, frame_extrema: number): number {
       return value == null ? frame_extrema : mapper.compute(value)
     }
@@ -128,17 +134,14 @@ export class BoxAnnotationView extends AnnotationView implements Pannable, Pinch
       top:    compute(top,    mappers.top,    frame.bbox.top),
       bottom: compute(bottom, mappers.bottom, frame.bbox.bottom),
     })
-
-    if (this.bbox.is_valid) {
-      this._paint_box()
-    }
   }
 
-  get border_radius(): Corners<number> {
-    return resolve.border_radius(this.model.border_radius)
-  }
+  protected _render(): void {
+    this.compute_geometry() // TODO: remove this
 
-  protected _paint_box(): void {
+    if (!this.bbox.is_valid)
+      return
+
     const {ctx} = this.layer
     ctx.save()
 
