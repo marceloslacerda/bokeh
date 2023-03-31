@@ -3,6 +3,7 @@ import {join} from "path"
 
 import {argv} from "yargs"
 import express from "express"
+import cors from "cors"
 import nunjucks from "nunjucks"
 
 import * as sys from "./sys"
@@ -15,6 +16,7 @@ nunjucks.configure(".", {
   noCache: true,
 })
 
+app.use(cors())
 app.use("/static", express.static("build/"))
 app.use("/assets", express.static("test/assets/"))
 app.use("/cases", express.static("../tests/baselines/cross/"))
