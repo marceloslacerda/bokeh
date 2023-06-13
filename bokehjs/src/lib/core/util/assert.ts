@@ -7,6 +7,7 @@ export function assert(condition: boolean | (() => boolean), message?: string): 
   throw new AssertionError(message ?? "Assertion failed")
 }
 
-export function unreachable(): never {
-  throw new Error("unreachable code")
+export function unreachable(msg?: string): never {
+  const suffix = msg != null ? `: ${msg}` : ""
+  throw new Error(`unreachable code${suffix}`)
 }
