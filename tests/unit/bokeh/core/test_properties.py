@@ -138,6 +138,7 @@ ALL = (
     'Tuple',
     'UnitsSpec',
     'UnsetValueError',
+    'Where',
     'expr',
     'field',
     'validate',

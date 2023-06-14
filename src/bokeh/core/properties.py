@@ -157,6 +157,7 @@ Special Properties
 .. autoclass:: Object
 .. autoclass:: Override
 .. autoclass:: Required
+.. autoclass:: Where
 
 Validation-only Properties
 --------------------------
@@ -288,6 +289,7 @@ __all__ = (
     'Tuple',
     'UnitsSpec',
     'UnsetValueError',
+    'Where',
     'expr',
     'field',
     'validate',
@@ -312,6 +314,8 @@ from .property.color import Alpha
 from .property.color import Color
 from .property.color import RGB
 from .property.color import ColorHex
+
+from .property.constraints import Where
 
 from .property.container import Array
 from .property.container import ColumnData
