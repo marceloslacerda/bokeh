@@ -119,6 +119,7 @@ from .ui import UIElement
 
 __all__ = (
     'ActionTool',
+    'AngleTool',
     'BoxEditTool',
     'BoxSelectTool',
     'BoxZoomTool',
@@ -1862,7 +1863,21 @@ class LineEditTool(EditTool, Drag, Tap):
                                     for renderer in incompatible_renderers)
             return "%s glyph type(s) found." % glyph_types
 
-#
+@abstract
+class MeasurementTool(GestureTool):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
+class AngleTool(MeasurementTool):
+    """ """
+
+    # explicit __init__ to support Init signatures
+    def __init__(self, *args, **kwargs) -> None:
+        super().__init__(*args, **kwargs)
+
 #-----------------------------------------------------------------------------
 # Dev API
 #-----------------------------------------------------------------------------
@@ -1921,3 +1936,4 @@ Tool.register_alias("hover", lambda: HoverTool(tooltips=[
     ("data (x, y)", "($x, $y)"),
     ("screen (x, y)", "($sx, $sy)"),
 ]))
+Tool.register_alias("angle", lambda: AngleTool())

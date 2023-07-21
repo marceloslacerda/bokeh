@@ -8,6 +8,8 @@ import {assert} from "core/util/assert"
 import type {Plot, PlotView} from "../plots/plot"
 import type {CanvasView} from "../canvas/canvas"
 import {CoordinateTransform, CoordinateMapping} from "../coordinates/coordinate_mapping"
+import {LinearScale} from "../scales/linear_scale"
+import {Range1d} from "../ranges/range1d"
 
 export namespace RendererGroup {
   export type Attrs = p.AttrsOf<Props>
@@ -36,7 +38,7 @@ export abstract class RendererView extends View implements visuals.Renderable {
   declare model: Renderer
   visuals: Renderer.Visuals
 
-  declare readonly parent: PlotView
+  declare readonly parent: PlotView | RendererView
 
   protected _coordinates?: CoordinateTransform
   get coordinates(): CoordinateTransform {
@@ -69,9 +71,16 @@ export abstract class RendererView extends View implements visuals.Renderable {
 
   protected _initialize_coordinates(): CoordinateTransform {
     const {coordinates} = this.model
-    const {frame} = this.plot_view
-    if (coordinates != null) {
+    const {frame, canvas} = this.plot_view
+    if (coordinates instanceof CoordinateMapping) {
       return coordinates.get_transform(frame)
+    } else if (coordinates == "screen") {
+      // TODO no-op scale
+      const x_range = new Range1d(canvas.bbox.x_range)
+      const y_range = new Range1d(canvas.bbox.y_range)
+      const x_scale = new LinearScale({source_range: x_range, target_range: x_range})
+      const y_scale = new LinearScale({source_range: y_range, target_range: y_range})
+      return new CoordinateTransform(x_scale, y_scale)
     } else {
       const {x_range_name, y_range_name} = this.model
       const x_scale = frame.x_scales.get(x_range_name)
@@ -83,11 +92,15 @@ export abstract class RendererView extends View implements visuals.Renderable {
   }
 
   get plot_view(): PlotView {
-    return this.parent
+    const {parent} = this
+    if (parent instanceof RendererView)
+      return parent.plot_view
+    else
+      return parent
   }
 
   get plot_model(): Plot {
-    return this.parent.model
+    return this.plot_view.model
   }
 
   get layer(): CanvasLayer {
@@ -173,7 +186,7 @@ export namespace Renderer {
     visible: p.Property<boolean>
     x_range_name: p.Property<string>
     y_range_name: p.Property<string>
-    coordinates: p.Property<CoordinateMapping | null>
+    coordinates: p.Property<CoordinateMapping | "screen" | null>
     propagate_hover: p.Property<boolean>
   }
 
@@ -191,13 +204,13 @@ export abstract class Renderer extends Model {
   }
 
   static {
-    this.define<Renderer.Props>(({Boolean, String, Ref, Nullable}) => ({
+    this.define<Renderer.Props>(({Boolean, String, Ref, Nullable, Enum, Or}) => ({
       group:        [ Nullable(Ref(RendererGroup)), null ],
       level:        [ RenderLevel, "image" ],
       visible:      [ Boolean, true ],
       x_range_name: [ String, "default" ],
       y_range_name: [ String, "default" ],
-      coordinates:  [ Nullable(Ref(CoordinateMapping)), null ],
+      coordinates:  [ Nullable(Or(Ref(CoordinateMapping), Enum("screen"))), null ],
       propagate_hover: [ Boolean, false ],
     }))
   }

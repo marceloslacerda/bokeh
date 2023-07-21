@@ -1,8 +1,8 @@
-import type {FloatArray} from "../types"
+import type {FloatArray, Arrayable} from "../types"
 import {infer_type} from "../types"
 import {assert} from "./assert"
 
-export function catmullrom_spline(x: FloatArray, y: FloatArray,
+export function catmullrom_spline(x: Arrayable<number>, y: Arrayable<number>,
     T: number = 10, tension: number = 0.5, closed: boolean = false): [FloatArray, FloatArray] {
   /** Centripetal Catmull-Rom spline. */
   assert(x.length == y.length)

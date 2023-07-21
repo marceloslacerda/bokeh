@@ -1,4 +1,4 @@
-import type {RenderOne} from "./defs"
+import type {VectorRenderOne} from "./defs"
 import type {XYGlyphData} from "./xy_glyph"
 import {XYGlyph, XYGlyphView} from "./xy_glyph"
 import type {PointGeometry, SpanGeometry, RectGeometry, PolyGeometry} from "core/geometry"
@@ -25,7 +25,7 @@ export abstract class MarkerView extends XYGlyphView {
   declare model: Marker
   declare visuals: Marker.Visuals
 
-  protected _render_one: RenderOne
+  protected _render_one: VectorRenderOne
 
   protected _render(ctx: Context2d, indices: number[], data?: MarkerData): void {
     const {sx, sy, size, angle} = data ?? this
