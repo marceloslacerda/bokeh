@@ -1,5 +1,5 @@
 import fs from "fs"
-import {join} from "path"
+import {join, resolve} from "path"
 
 import {argv} from "yargs"
 import express from "express"
@@ -106,6 +106,84 @@ app.get("/examples/:name", async (req, res) => {
       return
     }
   } catch {}
+  res.status(404).send("No such example")
+})
+
+import {spawn} from "child_process"
+
+async function build_example(path: string): Promise<string | null> {
+  const env = {
+    ...process.env,
+    BOKEH_DEV: "true",
+    BOKEH_RESOURCES: "server",
+    BOKEH_DEFAULT_SERVER_HOST: host,
+    BOKEH_DEFAULT_SERVER_PORT: `${port}`,
+  }
+
+  console.log(`Building ${path}`)
+  const proc = spawn("python", [path], {stdio: "pipe", env})
+
+  let output = ""
+  proc.stdout.on("data", (data) => {
+    output += `${data}`
+  })
+  proc.stderr.on("data", (data) => {
+    output += `${data}`
+  })
+
+  return new Promise((resolve, reject) => {
+    proc.on("error", reject)
+    proc.on("exit", (code) => {
+      if (code === 0) {
+        resolve(null)
+      } else {
+        const html = `\
+<html>
+<body style="white-space: pre; font-family: monospace;">
+${output}
+</body>
+</html>
+        `
+        resolve(html)
+      }
+    })
+  })
+}
+
+async function get_bokeh_example(path: string): Promise<string | null> {
+  if (path.includes(".")) {
+    return null
+  }
+
+  const py_path = resolve(join("../examples", `${path}.py`))
+  if (!(fs.existsSync(py_path) && fs.statSync(py_path).isFile())) {
+    return null
+  }
+
+  const error = await build_example(py_path)
+  if (error != null) {
+    return error
+  }
+
+  const html_path = join("../examples", `${path}.html`)
+  if (!(fs.existsSync(html_path) && fs.statSync(html_path).isFile())) {
+    return null
+  }
+
+  const html = await fs.promises.readFile(html_path, {encoding: "utf-8"})
+  return html
+}
+
+app.get("/bokeh/examples/:path(*)", async (req, res) => {
+  const {path} = req.params
+  const example = await get_bokeh_example(path)
+  if (example != null) {
+    try {
+      res.send(example)
+      return
+    } catch {}
+  }
+
   res.status(404).send("No such example")
 })
 
